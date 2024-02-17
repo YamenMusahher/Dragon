@@ -172,13 +172,10 @@ function checkGameOver() {
   let healthPercentage = hero.currentHP > 0 ? (hero.currentHP / hero.maxHP) * 100 : 0;
   healthBar.style.width = healthPercentage + "%";
   healthText.textContent = hero.currentHP + " / " + hero.maxHP + " HP";
-
-  // Legg til en sjekk for å se om helten er død og oppdater klassen hvis det er nødvendig
  
  
  
   if (hero.currentHP <= 0 && hero.alive) {
-    // Vi antar at du har en CSS-klasse som heter 'dead' som kan brukes for å vise en tom helsebar
     healthBar.classList.add('dead');
     removeHeroFromDisplay(hero);
   }
