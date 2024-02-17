@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arbeidskrav 1!</title>
+    <link rel="stylesheet" href="game.css" />
+  </head>
+
+  <body>
+    <div class="main-container">
+      <!-- Healthbars til heroene -->
+      <div class="hero-health-containers">
+        <!-- Helsebarer for hver helt -->
+        <div class="healthbar-container">
+          <div class="healthbar healer-health"></div>
+          <div class="text-container">
+            <p id="healer-name-txt">Henriette Healer</p>
+            <p id="healer-health-txt">400 / 400 HP</p>
+          </div>
+        </div>
+        <div class="healthbar-container">
+          <div class="healthbar archer-health"></div>
+          <div class="text-container">
+            <p id="archer-name-txt">Ariana Archer</p>
+            <p id="archer-health-txt">500 / 500 HP</p>
+          </div>
+        </div>
+        <div class="healthbar-container">
+          <div class="healthbar warrior-health"></div>
+          <div class="text-container">
+            <p id="warrior-name-txt">Wyona Warrior</p>
+            <p id="warrior-health-txt">600 / 600 HP</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Healthbar til fienden -->
+      <div class="dragon-health-container">
+        <div class="healthbar-container">
+          <div class="healthbar dragon-health"></div>
+          <div class="text-container">
+            <p id="dragon-name-txt">Daar Dragon</p>
+            <div class="text-container dragon-health-txt">2000 / 2000 HP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bildecontainere for heroene -->
+      <div class="img-container healer">
+        <img class="hero" src="assets/healer.png" onclick="attackDragon(heroesArray[0])"/>
+      </div>
+      <div class="img-container archer">
+        <img class="hero" src="assets/archer.png" onclick="attackDragon(heroesArray[1])"/>
+      </div>
+      <div class="img-container warrior">
+        <img class="hero" src="assets/warrior.png" onclick="attackDragon(heroesArray[2])"/>
+      </div>
+
+      <!-- Bildecontainer for fienden -->
+      <div class="enemy-container">
+        <div class="img-container dragon-container">
+          <img class="dragon" src="assets/dragon.png" />
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Stats for heroes
+      let heroesArray = [
+        {
+          id: "healer",
+          name: "Henriette Healer",
+          maxHP: 400,
+          currentHP: 400,
+          damage: 100,
+          alive: true,
+        },
+        {
+          id: "archer",
+          name: "Ariana Archer",
+          maxHP: 500,
+          currentHP: 500,
+          damage: 400,
+          alive: true,
+        },
+        {
+          id: "warrior",
+          name: "Wyona Warrior",
+          maxHP: 600,
+          currentHP: 600,
+          damage: 400,
+          alive: true,
+        },
+      ];
+
+      let dragonObject = {
+        name: "Daar Dragon",
+        maxHP: 2000,
+        currentHP: 2000,
+        damage: 200,
+        alive: true,
+      };
+
+      function attackDragon(hero) {
+        if (dragonObject.alive && hero.alive) {
+          let damageDealt = hero.damage;
+          dragonObject.currentHP -= damageDealt;
+          alert(hero.name + " har gjort " + damageDealt + " skade på " + dragonObject.name + "!");
+          document.querySelector(".dragon-health-txt").textContent = dragonObject.currentHP + " / " + dragonObject.maxHP + " HP";
+          checkDragonAlive();
+
+          if (dragonObject.alive) {
+            dragonCounterAttack();
+          }
+        }
+      }
+
+      function checkDragonAlive() {
+  if (dragonObject.currentHP <= 0) {
+    dragonObject.currentHP = 0; // Sikrer at HP ikke går under 0 i visningen
+    dragonObject.alive = false;
+    document.querySelector(".dragon-health-txt").textContent = "0 / " + dragonObject.maxHP + " HP";
+    showDragonDefeated(); // Visuell indikasjon på at dragen er død
+    alert("Gratulerer, du har vunnet spillet!"); // Informer spilleren om at de har vunnet
+  }
+}
+
+function showDragonDefeated() {
+  document.querySelector(".dragon-container").style.display = "none"; // Skjuler dragebildet
+  let dragonHealthBar = document.querySelector(".dragon-health");
+  dragonHealthBar.classList.add('dead'); // Benytter den eksisterende 'dead'-klassen for helsebaren
+}
+
+function dragonCounterAttack() {
+  let aliveHeroes = heroesArray.filter(hero => hero.alive);
+  if (aliveHeroes.length > 0) {
+    let target = aliveHeroes[Math.floor(Math.random() * aliveHeroes.length)];
+    target.currentHP -= dragonObject.damage;
+    alert(dragonObject.name + " har angrepet " + target.name + " med " + dragonObject.damage + " skade!");
+
+    if (target.currentHP <= 0) {
+      target.currentHP = 0;
+      target.alive = false;
+      alert(target.name + " er død!");
+      removeHeroFromDisplay(target);
+    }
+
+    updateHeroHealth(target);
+  }
+
+  // Kaller checkGameOver her for å sikre at vi sjekker spillets sluttstatus umiddelbart etter drageangrepet
+  checkGameOver();
+}
+
+function checkGameOver() {
+  // Sjekker om alle helter er døde ved å bruke .every
+  if (heroesArray.every(hero => !hero.alive)) {
+    alert("Spillet er tapt! " + dragonObject.name + " har vunnet!");
+  }
+}
+
+  function removeHeroFromDisplay(hero) {
+    document.querySelector("." + hero.id).style.display = "none"; // Skjuler heltebildet
+    // Kan også fjerne helsebar-containeren om nødvendig
+  }
+
+  function updateHeroHealth(hero) {
+  let healthBar = document.querySelector("." + hero.id + "-health");
+  let healthText = document.getElementById(hero.name.toLowerCase().replace(" ", "-") + "-health-txt");
+  
+  let healthPercentage = hero.currentHP > 0 ? (hero.currentHP / hero.maxHP) * 100 : 0;
+  healthBar.style.width = healthPercentage + "%";
+  healthText.textContent = hero.currentHP + " / " + hero.maxHP + " HP";
+
+  // Legg til en sjekk for å se om helten er død og oppdater klassen hvis det er nødvendig
+ 
+ 
+ 
+  if (hero.currentHP <= 0 && hero.alive) {
+    // Vi antar at du har en CSS-klasse som heter 'dead' som kan brukes for å vise en tom helsebar
+    healthBar.classList.add('dead');
+    removeHeroFromDisplay(hero);
+  }
+}
+    </script>
+  </body>
+</html>
